@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Safety Command Center</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Authentication View -->
+    <div id="login-view" class="view active">
+        <div class="login-container">
+            <div class="login-box">
+                <h2>🛡️ Command Center Login</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn primary-btn">Login</button>
+                    <div id="login-error" class="error-msg"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App View -->
+    <div id="app-view" class="view hidden">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="logo">🛡️ Smart Safety Command Center</div>
+            <div class="status-indicators">
+                <span class="status-badge"><span class="dot green"></span> System: Online</span>
+                <span class="status-badge"><span class="dot green"></span> AI Engine: Active</span>
+                <span class="user-info">User: <span id="current-user">admin</span></span>
+                <button id="logout-btn" class="btn danger-btn small-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav>
+                    <ul id="nav-menu">
+                        <li data-target="overview-section" class="active">🏠 Overview</li>
+                        <li data-target="monitoring-section">📹 Live Monitoring</li>
+                        <li data-target="image-analysis-section">🖼 Image Analysis</li>
+                        <li data-target="video-analysis-section">🎞 Video Analysis</li>
+                        <li data-target="events-section">🚨 Security Events</li>
+                        <li data-target="analytics-section">📊 Analytics</li>
+                        <li data-target="settings-section">⚙ Settings</li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content">
+                
+                <!-- Overview Section -->
+                <section id="overview-section" class="app-section active">
+                    <h2>System Overview</h2>
+                    <div class="cards-grid">
+                        <div class="card">
+                            <h3>Total Events</h3>
+                            <div class="metric" id="overview-total-events">--</div>
+                        </div>
+                        <div class="card">
+                            <h3>Events Today</h3>
+                            <div class="metric" id="overview-today-events">--</div>
+                        </div>
+                        <div class="card alert-card">
+                            <h3>Active Threats</h3>
+                            <div class="metric" id="overview-active-threats">0</div>
+                        </div>
+                    </div>
+                    <h3>Recent Security Events</h3>
+                    <div class="table-container">
+                        <table id="overview-events-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Time</th>
+                                    <th>Weapon</th>
+                                    <th>Confidence</th>
+                                    <th>Source</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Live Monitoring Section -->
+                <section id="monitoring-section" class="app-section hidden">
+                    <h2>Live Monitoring</h2>
+                    <div class="control-panel">
+                        <div class="form-group">
+                            <label>Camera Source</label>
+                            <select id="monitoring-source">
+                                <option value="browser_webcam">Laptop Webcam</option>
+                                <option value="ip_camera">Phone / IP Camera</option>
+                                <option value="rtsp">CCTV / RTSP</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group hidden" id="monitoring-url-group">
+                            <label id="monitoring-url-label">URL</label>
+                            <input type="text" id="monitoring-url" placeholder="http://... or rtsp://...">
+                        </div>
+                        
+                        <div class="actions">
+                            <button id="start-monitoring-btn" class="btn primary-btn">▶ Start Monitoring</button>
+                            <button id="stop-monitoring-btn" class="btn danger-btn" disabled>⏹ Stop Monitoring</button>
+                        </div>
+                    </div>
+                    
+                    <div class="live-feed-container">
+                        <div id="monitoring-status-banner" class="status-banner safe">🟢 NO ACTIVE THREAT</div>
+                        <div class="feed-wrapper">
+                            <!-- Hidden video element for local webcam capture -->
+                            <video id="local-webcam" autoplay playsinline muted hidden></video>
+                            <canvas id="capture-canvas" hidden></canvas>
+                            <!-- The image element where backend frames are rendered -->
+                            <img id="monitoring-feed" src="" alt="Live Feed Offline">
+                        </div>
+                        <div class="metrics-row">
+                            <div class="stat-badge">FPS: <span id="mon-fps">0</span></div>
+                            <div class="stat-badge">Persons: <span id="mon-persons">0</span></div>
+                            <div class="stat-badge">Weapons: <span id="mon-weapons">0</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Image Analysis Section -->
+                <section id="image-analysis-section" class="app-section hidden">
+                    <h2>Image Analysis</h2>
+                    <div class="control-panel">
+                        <input type="file" id="image-upload" accept=".jpg,.jpeg,.png">
+                        <button id="analyze-image-btn" class="btn primary-btn" disabled>Analyze Image</button>
+                        <button id="clear-image-btn" class="btn secondary-btn">Clear</button>
+                    </div>
+                    <div class="analysis-results hidden" id="image-results-container">
+                        <div id="image-status-banner" class="status-banner safe">🟢 NO THREAT DETECTED</div>
+                        <img id="image-result-display" src="" alt="Analysis Result">
+                        <div class="metrics-row" id="img-metrics-row">
+                            <div class="stat-badge">Persons: <span id="img-persons">0</span></div>
+                            <div class="stat-badge">Weapons: <span id="img-weapons">0</span></div>
+                            <div class="stat-badge" id="img-event-badge" style="display:none;">Event Generated</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Video Analysis Section -->
+                <section id="video-analysis-section" class="app-section hidden">
+                    <h2>Video Analysis</h2>
+                    <div class="control-panel">
+                        <input type="file" id="video-upload" accept=".mp4,.avi,.mov">
+                        <button id="analyze-video-btn" class="btn primary-btn" disabled>Analyze Video</button>
+                        <button id="stop-video-btn" class="btn danger-btn" disabled>Stop Processing</button>
+                    </div>
+                    <div class="live-feed-container hidden" id="video-feed-container">
+                        <div id="video-status-banner" class="status-banner safe">🟢 NO ACTIVE THREAT</div>
+                        <div class="feed-wrapper">
+                            <img id="video-feed" src="" alt="Video Processing">
+                        </div>
+                        <div class="metrics-row">
+                            <div class="stat-badge">FPS: <span id="vid-fps">0</span></div>
+                            <div class="stat-badge">Persons: <span id="vid-persons">0</span></div>
+                            <div class="stat-badge">Weapons: <span id="vid-weapons">0</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events Section -->
+                <section id="events-section" class="app-section hidden">
+                    <h2>Security Events</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <button id="refresh-events-btn" class="btn secondary-btn">Refresh</button>
+                        <button id="clear-events-btn" class="btn danger-btn">Clear All Evidence</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="full-events-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Time</th>
+                                    <th>Weapon</th>
+                                    <th>Confidence</th>
+                                    <th>Source</th>
+                                    <th>Status</th>
+                                    <th>Evidence</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics-section" class="app-section hidden">
+                    <div class="analytics-header">
+                        <h2>Analytics Dashboard</h2>
+                        <div class="analytics-controls">
+                            <span class="live-indicator"><span class="dot red pulse"></span> LIVE</span>
+                            <span class="last-updated">Last Updated: <span id="analytics-last-updated">--:--:--</span></span>
+                            <div class="btn-group">
+                                <button class="btn secondary-btn small-btn time-range-btn" data-val="today">Today</button>
+                                <button class="btn secondary-btn small-btn time-range-btn active" data-val="7d">7 Days</button>
+                                <button class="btn secondary-btn small-btn time-range-btn" data-val="30d">30 Days</button>
+                                <button class="btn secondary-btn small-btn time-range-btn" data-val="all">All Time</button>
+                            </div>
+                            <button id="refresh-analytics-btn" class="btn primary-btn small-btn">Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="analytics-filters">
+                        <input type="hidden" id="analytics-filter-range" value="7d">
+                        <div class="filter-group">
+                            <label>Weapon</label>
+                            <select id="analytics-filter-weapon">
+                                <option value="all">All Weapons</option>
+                                <option value="Gun">Gun</option>
+                                <option value="Knife">Knife</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Source</label>
+                            <select id="analytics-filter-source">
+                                <option value="all">All Sources</option>
+                                <option value="browser_webcam">Laptop Webcam</option>
+                                <option value="ip_camera">Phone / IP Camera</option>
+                                <option value="rtsp">CCTV / RTSP</option>
+                                <option value="image_upload">Image Upload</option>
+                                <option value="video_upload">Video Analysis</option>
+                            </select>
+                        </div>
+                        <div class="filter-group conf-filter">
+                            <label>Min Confidence: <span id="analytics-conf-val">0%</span></label>
+                            <input type="range" id="analytics-filter-conf" min="0" max="100" value="0">
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="analytics-empty-state" class="analytics-empty-state hidden">
+                        <div class="empty-icon">📊</div>
+                        <h3>No Security Analytics Available</h3>
+                        <p>Validated security threats will appear here automatically after detection.</p>
+                    </div>
+
+                    <!-- Dashboard Content -->
+                    <div id="analytics-dashboard-content" class="analytics-dashboard">
+                        
+                        <!-- Hero KPIs -->
+                        <div class="analytics-kpis">
+                            <div class="kpi-box danger">
+                                <div class="kpi-title">TOTAL THREATS</div>
+                                <div class="kpi-value" id="kpi-total">0</div>
+                            </div>
+                            <div class="kpi-box">
+                                <div class="kpi-title">EVIDENCE CAPTURED</div>
+                                <div class="kpi-value" id="kpi-evidence">0</div>
+                            </div>
+                            <div class="kpi-box">
+                                <div class="kpi-title">MOST DETECTED</div>
+                                <div class="kpi-value" id="kpi-weapon">-</div>
+                            </div>
+                            <div class="kpi-box">
+                                <div class="kpi-title">ACTIVE SOURCE</div>
+                                <div class="kpi-value" id="kpi-source">-</div>
+                            </div>
+                            <div class="kpi-box safe">
+                                <div class="kpi-title">AVG CONFIDENCE</div>
+                                <div class="kpi-value" id="kpi-conf">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="analytics-grid">
+                            <!-- Timeline -->
+                            <div class="analytics-card span-2">
+                                <h3>Threat Activity</h3>
+                                <div class="chart-container timeline-container">
+                                    <canvas id="chart-timeline"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Weapon Distribution -->
+                            <div class="analytics-card">
+                                <h3>Weapon Intelligence</h3>
+                                <div class="chart-container">
+                                    <canvas id="chart-weapon"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Source Distribution -->
+                            <div class="analytics-card">
+                                <h3>Source Intelligence</h3>
+                                <div class="chart-container">
+                                    <canvas id="chart-source"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Heatmap -->
+                            <div class="analytics-card span-2">
+                                <h3>Threat Activity Heatmap</h3>
+                                <div class="heatmap-wrapper">
+                                    <div id="heatmap-grid" class="heatmap-grid"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hourly Activity -->
+                            <div class="analytics-card span-2">
+                                <h3>Threat Activity By Hour</h3>
+                                <div class="chart-container timeline-container">
+                                    <canvas id="chart-hourly"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Insights -->
+                            <div class="analytics-card">
+                                <h3>Security Insights</h3>
+                                <div class="insights-panel">
+                                    <div class="insight-row">
+                                        <span>Most detected:</span>
+                                        <strong id="insight-weapon">-</strong>
+                                    </div>
+                                    <div class="insight-row">
+                                        <span>Most active source:</span>
+                                        <strong id="insight-source">-</strong>
+                                    </div>
+                                    <div class="insight-row">
+                                        <span>Average confidence:</span>
+                                        <strong id="insight-conf">-</strong>
+                                    </div>
+                                    <div class="insight-row">
+                                        <span>Peak activity:</span>
+                                        <strong id="insight-peak">-</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Threats -->
+                            <div class="analytics-card span-2">
+                                <h3>Recent Threats</h3>
+                                <div class="table-container small-table">
+                                    <table id="analytics-recent-table" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Weapon</th>
+                                                <th>Confidence</th>
+                                                <th>Source</th>
+                                                <th>Evidence</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="app-section hidden">
+                    <h2>System Settings</h2>
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label>IoW Threshold (Intersection over Weapon)</label>
+                            <input type="number" id="setting-iow" step="0.05" min="0" max="1" value="0.5">
+                            <small>Minimum overlap required to associate a weapon with a human.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Weapon Confidence Threshold</label>
+                            <input type="number" id="setting-weapon-conf" step="0.05" min="0" max="1" value="0.25">
+                            <small>Minimum confidence for the AI to classify an object as a weapon.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Alert Cooldown (Seconds)</label>
+                            <input type="number" id="setting-cooldown" min="1" max="300" value="10">
+                            <small>Time to wait before triggering another event for the same threat.</small>
+                        </div>
+                        <button id="save-settings-btn" class="btn primary-btn">Save Settings</button>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="evidence-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h3>Evidence Image</h3>
+            <img id="evidence-img-display" src="" alt="Evidence">
+        </div>
+    </div>
+
+    <!-- Clear Evidence Confirmation Modal -->
+    <div id="clear-evidence-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-clear-modal">&times;</span>
+            <h3>Clear All Evidence?</h3>
+            <p>This will permanently delete all saved evidence images and security event records.</p>
+            <p style="color: var(--danger); font-weight: bold;">This action cannot be undone.</p>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="cancel-clear-btn" class="btn secondary-btn">Cancel</button>
+                <button id="confirm-clear-btn" class="btn danger-btn">Delete All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Delete Confirmation Modal -->
+    <div id="delete-event-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-delete-modal">&times;</span>
+            <h3>Delete Security Event?</h3>
+            <p>Are you sure you want to permanently delete this security event and its evidence image?</p>
+            <p style="color: var(--danger); font-weight: bold;">This action cannot be undone.</p>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="cancel-delete-btn" class="btn secondary-btn">Cancel</button>
+                <button id="confirm-delete-btn" class="btn danger-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/monitoring.js"></script>
+    <script src="/js/analysis.js"></script>
+    <script src="/js/events.js"></script>
+    <script src="/js/analytics.js"></script>
+    <script src="/js/settings.js"></script>
+    <script src="/js/alert-sync.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

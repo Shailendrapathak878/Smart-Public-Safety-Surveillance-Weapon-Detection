@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authority Alert Console</title>
+    <link rel="stylesheet" href="/css/authority.css">
+</head>
+<body>
+    <div id="login-view" class="view">
+        <main class="login-panel">
+            <p class="eyebrow">SMART SAFETY COMMAND CENTER</p>
+            <h1>Authority Alert Console</h1>
+            <p class="muted">Secure access to validated security alerts.</p>
+            <form id="login-form">
+                <label>Username<input id="login-username" required autocomplete="username"></label>
+                <label>Password<input id="login-password" type="password" required autocomplete="current-password"></label>
+                <button class="button primary" type="submit">Sign In</button>
+                <p id="login-error" class="error" role="alert"></p>
+            </form>
+        </main>
+    </div>
+
+    <div id="app-view" class="view hidden">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">SMART SAFETY COMMAND CENTER</p>
+                <h1>Authority Alert Console</h1>
+            </div>
+            <div class="header-status">
+                <span id="system-status" class="status online">● SYSTEM ONLINE</span>
+                <span id="connection-status" class="status warning">● CONNECTING</span>
+                <span id="current-time" class="time"></span>
+                <span class="user">Authority: <strong id="current-user"></strong></span>
+                <button id="logout-btn" class="button quiet">Logout</button>
+            </div>
+        </header>
+
+        <main class="page-shell">
+            <section id="active-alert" class="active-alert empty-state">
+                <div class="alert-heading"><span class="status-dot"></span><span id="alert-title">NO ACTIVE THREATS</span></div>
+                <p id="alert-subtitle">Monitoring connected sources...</p>
+            </section>
+
+            <section id="alert-workspace" class="workspace hidden">
+                <div class="panel evidence-panel">
+                    <div class="panel-heading"><h2>Evidence</h2><span id="evidence-state" class="muted">Loading...</span></div>
+                    <div class="evidence-frame"><img id="evidence-image" alt="Validated threat evidence"></div>
+                    <button id="view-evidence" class="button quiet" type="button">View Full Evidence</button>
+                </div>
+                <div class="panel details-panel">
+                    <div class="panel-heading"><h2>Threat Details</h2><span id="event-status" class="badge active">ACTIVE</span></div>
+                    <dl>
+                        <div><dt>Weapon</dt><dd id="detail-weapon">-</dd></div>
+                        <div><dt>Confidence</dt><dd id="detail-confidence">-</dd></div>
+                        <div><dt>IoW</dt><dd id="detail-iow">-</dd></div>
+                        <div><dt>Source</dt><dd id="detail-source">-</dd></div>
+                        <div><dt>Timestamp</dt><dd id="detail-time">-</dd></div>
+                        <div><dt>Event ID</dt><dd id="detail-id">-</dd></div>
+                    </dl>
+                    <div class="alarm-state"><span class="speaker">◉</span><span id="alarm-state">ALARM STATE UNAVAILABLE</span></div>
+                    <button id="mute-alarm-btn" class="button mute-alarm" type="button">TURN OFF ALARM</button>
+                    <button id="acknowledge-btn" class="button acknowledge" type="button">Acknowledge Alert</button>
+                </div>
+            </section>
+
+            <section class="panel recent-panel">
+                <div class="panel-heading"><h2>Recent Security Alerts</h2><span id="sync-state" class="muted"></span></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Event ID</th><th>Weapon</th><th>Confidence</th><th>IoW</th><th>Source</th><th>Timestamp</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="recent-alerts-body"><tr><td colspan="8" class="empty-row">No security alerts recorded.</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="evidence-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content"><button id="close-modal" class="modal-close" type="button" aria-label="Close">×</button><h2 id="modal-title">Full Evidence</h2><img id="modal-image" alt="Full validated threat evidence"></div>
+    </div>
+    <div id="toast-container" class="toast-container"></div>
+    <script src="/js/authority.js"></script>
+</body>
+</html>

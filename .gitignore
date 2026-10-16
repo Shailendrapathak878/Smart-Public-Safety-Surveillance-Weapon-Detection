@@ -1,0 +1,27 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Data
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Evidence and Logs
+evidence/captures/*
+!evidence/captures/.keep
+logs/*
+!logs/.keep
+
+# OS
+.DS_Store
+Thumbs.db

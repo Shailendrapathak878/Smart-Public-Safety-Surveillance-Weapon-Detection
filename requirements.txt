@@ -1,0 +1,15 @@
+ultralytics==8.4.13
+torch==2.10.0
+torchvision==0.25.0
+opencv-python==4.13.0.92
+numpy==2.5.1
+pandas==3.0.3
+pillow==12.1.0
+pygame
+SQLAlchemy
+python-dotenv
+fastapi
+uvicorn
+python-multipart
+websockets
+jinja2
